@@ -92,7 +92,11 @@ export const MindMap = () => {
         type: 'custom',
         data: { 
           label: node.label || 'Node',
-          description: node.description || ''
+          description: node.description || '',
+          type: node.type || 'topic',
+          tags: node.tags || [],
+          resources: node.resources || [],
+          lang: node.lang || 'en'
         },
         position: {
           x: 250 + (index % 3) * 300,
@@ -100,13 +104,34 @@ export const MindMap = () => {
         },
       };
       newNodes.push(newNode);
+    });
 
-      if (node.parentId) {
+    // Create edges from the edges array
+    if (generatedNodes.edges) {
+      generatedNodes.edges.forEach((edge: any) => {
         newEdges.push({
-          id: `e-${node.parentId}-${newNode.id}`,
-          source: node.parentId,
-          target: newNode.id,
+          id: `e-${edge.from}-${edge.to}`,
+          source: edge.from,
+          target: edge.to,
           animated: true,
+          label: edge.relation,
+        });
+      });
+    }
+
+    // Fallback: create edges from children property
+    generatedNodes.nodes.forEach((node: any) => {
+      if (node.children && Array.isArray(node.children)) {
+        node.children.forEach((childId: string) => {
+          const edgeId = `e-${node.id}-${childId}`;
+          if (!newEdges.find(e => e.id === edgeId)) {
+            newEdges.push({
+              id: edgeId,
+              source: node.id,
+              target: childId,
+              animated: true,
+            });
+          }
         });
       }
     });
