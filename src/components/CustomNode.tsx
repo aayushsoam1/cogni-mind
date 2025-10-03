@@ -18,6 +18,8 @@ export const CustomNode = memo(({ data }: NodeProps) => {
         return 'border-green-500 bg-green-50 dark:bg-green-950/30 shadow-green-200 dark:shadow-green-900';
       case 'note':
         return 'border-purple-500 bg-purple-50 dark:bg-purple-950/30 shadow-purple-200 dark:shadow-purple-900';
+      case 'video':
+        return 'border-orange-500 bg-orange-50 dark:bg-orange-950/30 shadow-orange-200 dark:shadow-orange-900';
       default:
         return 'border-border bg-card';
     }
@@ -26,7 +28,8 @@ export const CustomNode = memo(({ data }: NodeProps) => {
   const isParentNode = nodeData.type === 'topic' && 
     (nodeData.label?.includes('Study') || 
      nodeData.label?.includes('Jobs') || 
-     nodeData.label?.includes('Notes'));
+     nodeData.label?.includes('Notes') ||
+     nodeData.label?.includes('Video'));
   
   return (
     <div className={`px-6 py-4 shadow-lg hover:shadow-xl rounded-xl border-2 transition-all duration-200 min-w-[200px] max-w-[300px] ${getCategoryStyles()} ${isParentNode ? 'min-w-[280px] scale-105' : ''}`}>

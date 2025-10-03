@@ -90,6 +90,7 @@ export const MindMap = () => {
     const studyNodes: any[] = [];
     const jobNodes: any[] = [];
     const noteNodes: any[] = [];
+    const videoNodes: any[] = [];
     const otherNodes: any[] = [];
     
     generatedNodes.nodes.forEach((node: any) => {
@@ -99,12 +100,14 @@ export const MindMap = () => {
         jobNodes.push(node);
       } else if (node.category === 'note' || node.id === 'notes_parent') {
         noteNodes.push(node);
+      } else if (node.category === 'video' || node.id === 'videos_parent') {
+        videoNodes.push(node);
       } else {
         otherNodes.push(node);
       }
     });
 
-    // Position study nodes (left column)
+    // Position study nodes (column 1)
     studyNodes.forEach((node, index) => {
       const isParent = node.id === 'study_parent';
       newNodes.push({
@@ -126,7 +129,7 @@ export const MindMap = () => {
       });
     });
 
-    // Position job nodes (middle column)
+    // Position job nodes (column 2)
     jobNodes.forEach((node, index) => {
       const isParent = node.id === 'jobs_parent';
       newNodes.push({
@@ -142,13 +145,13 @@ export const MindMap = () => {
           lang: node.lang || 'en'
         },
         position: {
-          x: 500,
+          x: 550,
           y: isParent ? 100 : 300 + (index - 1) * 200,
         },
       });
     });
 
-    // Position note nodes (right column)
+    // Position note nodes (column 3)
     noteNodes.forEach((node, index) => {
       const isParent = node.id === 'notes_parent';
       newNodes.push({
@@ -164,7 +167,29 @@ export const MindMap = () => {
           lang: node.lang || 'en'
         },
         position: {
-          x: 900,
+          x: 1000,
+          y: isParent ? 100 : 300 + (index - 1) * 200,
+        },
+      });
+    });
+
+    // Position video nodes (column 4)
+    videoNodes.forEach((node, index) => {
+      const isParent = node.id === 'videos_parent';
+      newNodes.push({
+        id: node.id,
+        type: 'custom',
+        data: { 
+          label: node.label || 'Node',
+          description: node.description || '',
+          type: node.type || 'topic',
+          category: node.category || 'video',
+          tags: node.tags || [],
+          resources: node.resources || [],
+          lang: node.lang || 'en'
+        },
+        position: {
+          x: 1450,
           y: isParent ? 100 : 300 + (index - 1) * 200,
         },
       });

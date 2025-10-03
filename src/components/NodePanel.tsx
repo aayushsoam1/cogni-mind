@@ -15,8 +15,12 @@ interface Resource {
   type: string;
   meta: {
     official: boolean;
+    mock?: boolean;
     score: number;
     tags?: string[];
+    snippet?: string;
+    youtube_id?: string;
+    view?: 'inner' | 'web';
   };
 }
 
@@ -71,6 +75,8 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       case 'note':
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+      case 'video':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
       default:
         return '';
     }
@@ -108,7 +114,8 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
             {category === 'study' && '📚 Study'}
             {category === 'job' && '💼 Job'}
             {category === 'note' && '📝 Note'}
-            {!['study', 'job', 'note'].includes(category) && nodeType}
+            {category === 'video' && '🎥 Video'}
+            {!['study', 'job', 'note', 'video'].includes(category) && nodeType}
           </Badge>
         </div>
 
@@ -145,12 +152,15 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
             <div className="space-y-3">
               {resources.map((resource) => (
                 <Card key={resource.r_id} className="p-3 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h4 className="font-medium text-sm truncate">{resource.title}</h4>
                         {resource.meta.official && (
-                          <Badge variant="default" className="text-xs">Official</Badge>
+                          <Badge variant="default" className="text-xs bg-green-600">Official</Badge>
+                        )}
+                        {resource.meta.mock && (
+                          <Badge variant="outline" className="text-xs border-yellow-600 text-yellow-600">Mock</Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
@@ -158,6 +168,13 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
                         <span>•</span>
                         <span className="capitalize">{resource.type}</span>
                       </div>
+                      
+                      {resource.meta.snippet && (
+                        <p className="text-xs text-muted-foreground italic border-l-2 border-primary/50 pl-2 mb-2">
+                          {resource.meta.snippet}
+                        </p>
+                      )}
+                      
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
                           <div 
@@ -169,16 +186,68 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
                           {Math.round(resource.meta.score * 100)}%
                         </span>
                       </div>
+                      
+                      {resource.meta.tags && resource.meta.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {resource.meta.tags.map((tag, idx) => (
+                            <span key={idx} className="px-2 py-0.5 text-xs bg-accent/30 text-accent-foreground rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <a
-                      href={resource.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 hover:bg-muted rounded-md transition-colors flex-shrink-0"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                    
+                    {!resource.meta.youtube_id && (
+                      <a
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 hover:bg-muted rounded-md transition-colors flex-shrink-0"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
                   </div>
+                  
+                  {resource.meta.youtube_id && (
+                    <div className="mt-2 aspect-video rounded overflow-hidden">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://youtube.com/embed/${resource.meta.youtube_id}`}
+                        title={resource.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                      />
+                    </div>
+                  )}
+                  
+                  {resource.type === 'pdf' && resource.meta.view && (
+                    <div className="flex gap-2 mt-2">
+                      {resource.meta.view === 'inner' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open(resource.url, '_blank')}
+                          className="text-xs"
+                        >
+                          Open Inside
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        asChild
+                        className="text-xs"
+                      >
+                        <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                          Open in Web →
+                        </a>
+                      </Button>
+                    </div>
+                  )}
                 </Card>
               ))}
             </div>
