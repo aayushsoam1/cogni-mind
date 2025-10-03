@@ -86,24 +86,109 @@ export const MindMap = () => {
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
     
-    generatedNodes.nodes.forEach((node: any, index: number) => {
-      const newNode: Node = {
-        id: node.id || `ai-${Date.now()}-${index}`,
+    // Categorize nodes for better positioning
+    const studyNodes: any[] = [];
+    const jobNodes: any[] = [];
+    const noteNodes: any[] = [];
+    const otherNodes: any[] = [];
+    
+    generatedNodes.nodes.forEach((node: any) => {
+      if (node.category === 'study' || node.id === 'study_parent') {
+        studyNodes.push(node);
+      } else if (node.category === 'job' || node.id === 'jobs_parent') {
+        jobNodes.push(node);
+      } else if (node.category === 'note' || node.id === 'notes_parent') {
+        noteNodes.push(node);
+      } else {
+        otherNodes.push(node);
+      }
+    });
+
+    // Position study nodes (left column)
+    studyNodes.forEach((node, index) => {
+      const isParent = node.id === 'study_parent';
+      newNodes.push({
+        id: node.id,
         type: 'custom',
         data: { 
           label: node.label || 'Node',
           description: node.description || '',
           type: node.type || 'topic',
+          category: node.category || 'study',
           tags: node.tags || [],
           resources: node.resources || [],
           lang: node.lang || 'en'
         },
         position: {
-          x: 250 + (index % 3) * 300,
-          y: 150 + Math.floor(index / 3) * 200,
+          x: 100,
+          y: isParent ? 100 : 300 + (index - 1) * 200,
         },
-      };
-      newNodes.push(newNode);
+      });
+    });
+
+    // Position job nodes (middle column)
+    jobNodes.forEach((node, index) => {
+      const isParent = node.id === 'jobs_parent';
+      newNodes.push({
+        id: node.id,
+        type: 'custom',
+        data: { 
+          label: node.label || 'Node',
+          description: node.description || '',
+          type: node.type || 'topic',
+          category: node.category || 'job',
+          tags: node.tags || [],
+          resources: node.resources || [],
+          lang: node.lang || 'en'
+        },
+        position: {
+          x: 500,
+          y: isParent ? 100 : 300 + (index - 1) * 200,
+        },
+      });
+    });
+
+    // Position note nodes (right column)
+    noteNodes.forEach((node, index) => {
+      const isParent = node.id === 'notes_parent';
+      newNodes.push({
+        id: node.id,
+        type: 'custom',
+        data: { 
+          label: node.label || 'Node',
+          description: node.description || '',
+          type: node.type || 'topic',
+          category: node.category || 'note',
+          tags: node.tags || [],
+          resources: node.resources || [],
+          lang: node.lang || 'en'
+        },
+        position: {
+          x: 900,
+          y: isParent ? 100 : 300 + (index - 1) * 200,
+        },
+      });
+    });
+
+    // Position other nodes
+    otherNodes.forEach((node, index) => {
+      newNodes.push({
+        id: node.id,
+        type: 'custom',
+        data: { 
+          label: node.label || 'Node',
+          description: node.description || '',
+          type: node.type || 'topic',
+          category: node.category,
+          tags: node.tags || [],
+          resources: node.resources || [],
+          lang: node.lang || 'en'
+        },
+        position: {
+          x: 500,
+          y: 800 + index * 150,
+        },
+      });
     });
 
     // Create edges from the edges array
@@ -113,8 +198,9 @@ export const MindMap = () => {
           id: `e-${edge.from}-${edge.to}`,
           source: edge.from,
           target: edge.to,
-          animated: true,
+          animated: edge.relation === 'leads_to' || edge.relation === 'related',
           label: edge.relation,
+          style: { stroke: edge.relation === 'leads_to' ? '#10b981' : '#8b5cf6' },
         });
       });
     }

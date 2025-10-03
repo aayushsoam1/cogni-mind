@@ -32,6 +32,7 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
     label?: string; 
     description?: string;
     type?: string;
+    category?: string;
     tags?: string[];
     resources?: Resource[];
   };
@@ -60,6 +61,20 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
   const resources = nodeData?.resources || [];
   const tags = nodeData?.tags || [];
   const nodeType = nodeData?.type || 'topic';
+  const category = nodeData?.category || 'topic';
+
+  const getCategoryBadgeColor = () => {
+    switch (category) {
+      case 'study':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'job':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'note':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+      default:
+        return '';
+    }
+  };
 
   return (
     <div className="w-80 bg-card border-l border-border h-full overflow-y-auto shadow-xl">
@@ -88,9 +103,12 @@ export const NodePanel = ({ node, onUpdate, onDelete, onClose }: NodePanelProps)
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-2 block">Type</label>
-          <Badge variant="secondary" className="capitalize">
-            {nodeType}
+          <label className="text-sm font-medium mb-2 block">Category</label>
+          <Badge className={`capitalize ${getCategoryBadgeColor()}`}>
+            {category === 'study' && '📚 Study'}
+            {category === 'job' && '💼 Job'}
+            {category === 'note' && '📝 Note'}
+            {!['study', 'job', 'note'].includes(category) && nodeType}
           </Badge>
         </div>
 
